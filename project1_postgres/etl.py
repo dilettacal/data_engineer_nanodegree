@@ -7,11 +7,19 @@ import datetime
 
 
 def process_song_file(cur, filepath):
+    """
+    Extracts relevant information from the provided song file and 
+    insert it into the song and artist tables.
+    
+    Parameters:
+    cur (Cursor): Cursor connected to PostgreSQL
+    filepath (String): Path to song file
+    """
     # open song file
     df = pd.read_json(filepath, lines=True)
 
     # insert song record
-    song_data = df[['song_id', 'title','artist_id', 'year', 'duration']].values[0].tolist()
+    song_data = df[['song_id', 'title', 'artist_id', 'year', 'duration']].values[0].tolist()
     song_data = (song_data[0], song_data[1], song_data[2], song_data[3], song_data[4])
     try:
         cur.execute(song_table_insert, song_data)
@@ -32,6 +40,14 @@ def process_song_file(cur, filepath):
 
 
 def process_log_file(cur, filepath):
+	"""
+    Extracts time data from provided log file and 
+    inserts them into the songplay table
+    
+    Parameters:
+    cur (Cursor): Cursor connected to PostgreSQL
+    filepath (String): Path to log file
+    """
     # open log file
     df = pd.read_json(filepath, lines=True)
 
@@ -78,6 +94,17 @@ def process_log_file(cur, filepath):
 
 
 def process_data(cur, conn, filepath, func):
+	"""
+    Processes all data from a given filepath with a given function
+	
+	Parameters:
+	
+    cur (Cursor): Cursor connected to PostgreSQL
+    conn (Connection): session to the PostgreSQL database
+    filepath (String): Path containing subfolders with data
+    func (Function): Function to process the data
+    """
+	
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -97,6 +124,11 @@ def process_data(cur, conn, filepath, func):
 
 
 def main():
+	"""
+    Establishes a connection to the database
+    and processes data in the `data/song_data` 
+	and `data/log_data` folders.
+    """
     conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
     cur = conn.cursor()
 
